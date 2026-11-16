@@ -12,13 +12,16 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# Load GOOGLE_API_KEY and GCS_BUCKET_NAME from local .env
+# Load GOOGLE_API_KEY, GCS_BUCKET_NAME, and GOOGLE_APPLICATION_CREDENTIALS from .env
 load_dotenv()
+
+# Ensure Google ADK uses the Gemini Developer API (AI Studio) rather than Vertex AI
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "FALSE"
 
 # Configuration
 LATITUDE = 39.7684   # Indianapolis, IN
 LONGITUDE = -86.1581
-GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "your-gcs-bucket-name")
+GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "zawatkin-weather-pipeline-2026")
 
 RAW_FILE = "raw_weather.json"
 PROCESSED_FILE = "processed_daily_weather.csv"
