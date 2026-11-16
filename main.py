@@ -115,7 +115,7 @@ def build_visualization() -> str:
 
 pipeline_agent = Agent(
     name="weather_data_pipeline_agent",
-    model="gemini-3.8-flash",
+    model="gemini-2.5-flash",
     description="Orchestrates an end-to-end weather data engineering pipeline.",
     instruction=(
         "You are a data engineering pipeline orchestrator. Execute the pipeline tools in strict order: "
