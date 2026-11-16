@@ -1,0 +1,27 @@
+# Environment variables & secrets (CRITICAL: prevents leaking API keys/credentials)
+.env
+.env.*
+*.pem
+*.key
+*credentials*.json
+*service-account*.json
+
+# Python byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Local generated outputs (optional—uncomment if you don't want the HTML output tracked)
+# weather_visualization.html
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
