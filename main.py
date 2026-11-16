@@ -4,8 +4,7 @@ import asyncio
 import requests
 import pandas as pd
 import plotly.express as px
-import boto3
-from botocore.exceptions import NoCredentialsError
+from google.cloud import storage
 from dotenv import load_dotenv
 
 from google.adk.agents import Agent
@@ -13,13 +12,13 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# Load GOOGLE_API_KEY and AWS credentials from local .env
+# Load GOOGLE_API_KEY and GCS_BUCKET_NAME from local .env
 load_dotenv()
 
 # Configuration
 LATITUDE = 39.7684   # Indianapolis, IN
 LONGITUDE = -86.1581
-S3_BUCKET = os.getenv("S3_BUCKET_NAME", "your-target-s3-bucket-name")
+GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "your-gcs-bucket-name")
 
 RAW_FILE = "raw_weather.json"
 PROCESSED_FILE = "processed_daily_weather.csv"
@@ -79,19 +78,19 @@ def transform_weather_data() -> str:
     return f"Processed {len(df)} valid hourly rows into {len(daily_summary)} daily summary rows in {PROCESSED_FILE}."
 
 
-def upload_data_to_cloud(bucket_name: str = S3_BUCKET) -> str:
-    """Uploads raw JSON and processed CSV datasets to AWS S3 cloud object storage."""
-    s3 = boto3.client("s3")
-    uploaded = []
+def upload_data_to_cloud(bucket_name: str = GCS_BUCKET) -> str:
+    """Uploads raw JSON and processed CSV datasets to Google Cloud Storage."""
     try:
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        uploaded = []
         for file_path in [RAW_FILE, PROCESSED_FILE]:
-            s3.upload_file(file_path, bucket_name, f"weather_pipeline/{file_path}")
+            blob = bucket.blob(f"weather_pipeline/{file_path}")
+            blob.upload_from_filename(file_path)
             uploaded.append(file_path)
-        return f"Uploaded {uploaded} to s3://{bucket_name}/weather_pipeline/."
-    except NoCredentialsError:
-        return "AWS credentials not configured locally; skipped S3 upload (local files preserved)."
+        return f"Uploaded {uploaded} to gs://{bucket_name}/weather_pipeline/."
     except Exception as e:
-        return f"Cloud storage upload notice: {e}"
+        return f"Cloud storage upload notice (local files preserved): {e}"
 
 
 def build_visualization() -> str:
@@ -119,7 +118,7 @@ pipeline_agent = Agent(
         "You are a data engineering pipeline orchestrator. Execute the pipeline tools in strict order: "
         "1) Call `ingest_weather_data` to pull raw API data. "
         "2) Call `transform_weather_data` to filter and aggregate the data into daily metrics. "
-        "3) Call `upload_data_to_cloud` to store the raw and processed data in cloud storage. "
+        "3) Call `upload_data_to_cloud` to store the raw and processed data in Google Cloud Storage. "
         "4) Call `build_visualization` to generate the HTML dashboard. "
         "After all four tools succeed, provide a concise summary of the pipeline execution."
     ),
