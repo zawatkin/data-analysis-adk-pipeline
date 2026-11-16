@@ -15,3 +15,4 @@ This project acts as an automated agent that:
 3. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
+4. For Complete setup instructions, view the submitted project file DA_Makeup_Setup_FutureImprovements.docx. Complete setup instructions were redacted to make sure credentials were hidden.
