@@ -3,4 +3,4 @@ python-dotenv
 requests
 pandas
 plotly
-boto3
+google-cloud-storage
